@@ -1,4 +1,7 @@
-const { Client, GatewayIntentBits, ActivityType, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, ActivityType } = require('discord.js');
+const config = require('./config.json');
+const nicknameManager = require('./automato/nickname');
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -9,88 +12,70 @@ const client = new Client({
 });
 
 client.on('ready', async () => {
-    // Configura o status de atividade do bot
     client.user.setActivity({
-        name: 'programando',
+        name: 'In development',
         type: ActivityType.Custom
     });
 
     console.log('Bot está online e pronto.');
 
-    // Obter o servidor pelo ID
     const guild = await client.guilds.fetch('1304847889717006416');
 
     try {
-        // Buscar todos os membros do servidor
         const members = await guild.members.fetch();
-
         members.forEach(async (member) => {
-            const rolePrefixMap = {
-                'ZENITE III': '[ZNT III]',
-                'beta_tester': '[TESTER]',
-                'ZENITE II': '[ZNT II]'
-            };
-530954370796355584
-            // Identificar o prefixo com base nos cargos
-            const prefix = member.roles.cache.reduce((acc, role) => {
-                return rolePrefixMap[role.name] || acc;
-            }, '');
-
-            // Verificar e ajustar o apelido conforme necessário
-            if (prefix) {
-                const newNickname = `${prefix} ${member.user.username}`;
-                if (member.nickname !== newNickname) {
-                    try {
-                        await member.setNickname(newNickname);
-                        console.log(`Apelido de ${member.user.username} alterado para: ${newNickname}`);
-                    } catch (error) {
-                        console.error(`Erro ao alterar o apelido de ${member.user.username}:`, error);
-                    }
-                }
-            } else if (member.nickname && (member.nickname.startsWith('[ZNT III]') || member.nickname.startsWith('[ZNT II]') || member.nickname.startsWith('[TESTER]'))) {
-                try {
-                    await member.setNickname(member.user.username);
-                    console.log(`Prefixo removido do apelido de ${member.user.username}`);
-                } catch (error) {
-                    console.error(`Erro ao remover o prefixo de ${member.user.username}:`, error);
-                }
-            }
+            await nicknameManager.updateNickname(member);
         });
-
     } catch (error) {
         console.error('Erro ao buscar os membros do servidor:', error);
     }
 });
 
-// Evento para atualizar o apelido de novos membros ou quando seus cargos mudarem
-client.on('guildMemberUpdate', async (oldMember, newMember) => {
-    const rolePrefixMap = {
-        'ZENITE III': '[ZNT III]',
-        'beta_tester': '[TESTER]',
-        'ZENITE II': '[ZNT II]'
-    };
 
-    const prefix = newMember.roles.cache.reduce((acc, role) => {
-        return rolePrefixMap[role.name] || acc;
-    }, '');
+const commands = {
+    help: 'Mostra esta mensagem de ajuda.',
+    status: 'Exibe as estatísticas do servidor.',
+};
 
-    if (prefix) {
-        const newNickname = `${prefix} ${newMember.user.username}`;
-        try {
-            await newMember.setNickname(newNickname);
-            console.log(`Apelido do membro alterado para: ${newNickname}`);
-        } catch (error) {
-            console.error(`Erro ao alterar o apelido de ${newMember.user.username}:`, error);
-        }
-    } else if (oldMember.nickname && (oldMember.nickname.startsWith('[ZNT III]') || oldMember.nickname.startsWith('[ZNT II]') || oldMember.nickname.startsWith('[TESTER]'))) {
-        try {
-            await newMember.setNickname(newMember.user.username);
-            console.log(`Prefixo removido do apelido de ${newMember.user.username}`);
-        } catch (error) {
-            console.error(`Erro ao remover o prefixo de ${newMember.user.username}:`, error);
-        }
+
+
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName } = interaction;
+
+    if (commandName === 'help') {
+        const helpMessage = Object.entries(commands)
+            .map(([name, description]) => `/${name} - ${description}`)
+            .join('\n');
+
+        await interaction.reply({
+            content: `Aqui está a lista de comandos disponíveis:\n${helpMessage}`,
+            ephemeral: true
+        });
     }
+   
+    else if (commandName === 'status') {
+        const guild = interaction.guild;
+        const serverStatus = `**Nome do servidor:** ${guild.name}
+        **Total de membros:** ${guild.memberCount}
+        **Canais de texto:** ${guild.channels.cache.filter(channel => channel.type === 0).size}
+        **Canais de voz:** ${guild.channels.cache.filter(channel => channel.type === 2).size}
+        **Criado em:** ${guild.createdAt.toDateString()}
+        **Dono do servidor:** <@${guild.ownerId}>`;
+
+        await interaction.reply({
+            content: serverStatus,
+            ephemeral: false // Define como true se quiser que só o usuário veja a resposta
+        });
+    }
+
 });
 
-const config = require('./config.json');
+
+
+client.on('guildMemberUpdate', async (oldMember, newMember) => {
+    await nicknameManager.updateNickname(newMember);
+});
+
 client.login(config.token);
