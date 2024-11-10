@@ -15,37 +15,54 @@ client.on('ready', async () => {
         type: ActivityType.Custom
     });
 
-    // Exibe informações do bot
-    console.log('Informações do Bot:');
-    console.log(`ID: ${client.user.id}`);
-    console.log(`Username: ${client.user.username}`);
-    console.log(`Tag: ${client.user.tag}`);
-    console.log(`Avatar URL: ${client.user.avatarURL()}`);
-    console.log(`Data de criação: ${client.user.createdAt}`);
-    console.log(`É um bot? ${client.user.bot}`);
+    console.log('Bot está online e pronto.');
+
+    // Obter o servidor pelo ID
+    const guild = await client.guilds.fetch('1304847889717006416');
 
     try {
-        // Buscando o usuário pelo ID
-        const OWNER = await client.users.fetch("464158970248953865");
+        // Buscar todos os membros do servidor
+        const members = await guild.members.fetch();
 
-        // Criando o embed
-        const EMBED = new EmbedBuilder()
-            .setAuthor({
-                name: 'Sendo desenvolvido',
-                iconURL: OWNER.displayAvatarURL({ dynamic: true })
-            })
-            .setDescription(`Sendo desenvolvido por ${OWNER.username}`);
+        members.forEach(async (member) => {
+            const rolePrefixMap = {
+                'ZENITE III': '[ZNT III]',
+                'beta_tester': '[TESTER]',
+                'ZENITE II': '[ZNT II]'
+            };
+530954370796355584
+            // Identificar o prefixo com base nos cargos
+            const prefix = member.roles.cache.reduce((acc, role) => {
+                return rolePrefixMap[role.name] || acc;
+            }, '');
 
-        // Envia o embed para um canal específico
-        const channel = client.channels.cache.get('1304847889717006419');
-        if (channel) {
-            channel.send({ embeds: [EMBED] });
-        }
+            // Verificar e ajustar o apelido conforme necessário
+            if (prefix) {
+                const newNickname = `${prefix} ${member.user.username}`;
+                if (member.nickname !== newNickname) {
+                    try {
+                        await member.setNickname(newNickname);
+                        console.log(`Apelido de ${member.user.username} alterado para: ${newNickname}`);
+                    } catch (error) {
+                        console.error(`Erro ao alterar o apelido de ${member.user.username}:`, error);
+                    }
+                }
+            } else if (member.nickname && (member.nickname.startsWith('[ZNT III]') || member.nickname.startsWith('[ZNT II]') || member.nickname.startsWith('[TESTER]'))) {
+                try {
+                    await member.setNickname(member.user.username);
+                    console.log(`Prefixo removido do apelido de ${member.user.username}`);
+                } catch (error) {
+                    console.error(`Erro ao remover o prefixo de ${member.user.username}:`, error);
+                }
+            }
+        });
+
     } catch (error) {
-        console.error('Erro ao buscar o usuário ou criar o embed:', error);
+        console.error('Erro ao buscar os membros do servidor:', error);
     }
 });
 
+// Evento para atualizar o apelido de novos membros ou quando seus cargos mudarem
 client.on('guildMemberUpdate', async (oldMember, newMember) => {
     const rolePrefixMap = {
         'ZENITE III': '[ZNT III]',
@@ -66,20 +83,11 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
             console.error(`Erro ao alterar o apelido de ${newMember.user.username}:`, error);
         }
     } else if (oldMember.nickname && (oldMember.nickname.startsWith('[ZNT III]') || oldMember.nickname.startsWith('[ZNT II]') || oldMember.nickname.startsWith('[TESTER]'))) {
-        if (oldMember.nickname.startsWith('[TESTER]') && !newMember.roles.cache.has('beta_tester')) {
-            try {
-                await newMember.setNickname(newMember.user.username);
-                console.log(`Prefixo [TESTER] removido do apelido de ${newMember.user.username}`);
-            } catch (error) {
-                console.error(`Erro ao remover o prefixo de ${newMember.user.username}:`, error);
-            }
-        } else {
-            try {
-                await newMember.setNickname(newMember.user.username);
-                console.log(`Prefixo removido do apelido de ${newMember.user.username}`);
-            } catch (error) {
-                console.error(`Erro ao remover o prefixo de ${newMember.user.username}:`, error);
-            }
+        try {
+            await newMember.setNickname(newMember.user.username);
+            console.log(`Prefixo removido do apelido de ${newMember.user.username}`);
+        } catch (error) {
+            console.error(`Erro ao remover o prefixo de ${newMember.user.username}:`, error);
         }
     }
 });
