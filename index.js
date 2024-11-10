@@ -75,8 +75,10 @@ client.on('interactionCreate', async (interaction) => {
     // Verifica se o autor tem um cargo mínimo necessário (exemplo: "Admin")
     const requiredRole = 'ZENITE III';  // Substitua pelo nome do cargo que você deseja exigir
 
+
+    //verifica o cargo do invocador
     if (!interaction.member.roles.cache.some(role => role.name === requiredRole)) {
-        return interaction.reply({ content: 'Você precisa ter o cargo de "Admin" para usar este comando.', ephemeral: true });
+        return interaction.reply({ content: 'Você não tem permissão para usar este comando, procure alguém da administração🤖', ephemeral: true });
     }
 
     // Pega o canal onde o comando foi invocado
