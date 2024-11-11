@@ -1,113 +1,26 @@
-const { Client, GatewayIntentBits, ActivityType } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 const config = require('./config.json');
-const nicknameManager = require('./automato/nickname');
+const clientConfig = require('./clientConfig');
+const commandHandler = require('./slashCommands/event');
+const buttonInteractions = require('./automato/buttonInteractions');
+const messageHandler = require('./automato/messageHandler');
+const guildMemberHandler = require('./automato/guildMemberHandler');
+const client = clientConfig.createClient();
 
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ]
-});
+// Quando o bot estiver pronto
+client.on('ready', clientConfig.onReady);
 
-client.on('ready', async () => {
-    client.user.setActivity({
-        name: 'In development',
-        type: ActivityType.Custom
-    });
+// Comandos de interação
+client.on('interactionCreate', commandHandler.handleCommand);
 
-    console.log('Bot está online e pronto.');
+// Interações com botões
+client.on('interactionCreate', buttonInteractions.handleButton);
 
-    const guild = await client.guilds.fetch('1304847889717006416');
+// Mensagens contendo "!bot"
+client.on('messageCreate', messageHandler.handleMessage);
 
-    try {
-        const members = await guild.members.fetch();
-        members.forEach(async (member) => {
-            await nicknameManager.updateNickname(member);
-        });
-    } catch (error) {
-        console.error('Erro ao buscar os membros do servidor:', error);
-    }
-});
+// Atualizações no servidor
+client.on('guildMemberUpdate', guildMemberHandler.handleGuildMemberUpdate);
 
-
-const commands = {
-    help: 'Mostra esta mensagem de ajuda.',
-    status: 'Exibe as estatísticas do servidor.',
-    clean:'Limpa as mensagens de um determinado chat'
-};
-
-
-
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isCommand()) return;
-
-    const { commandName } = interaction;
-
-    if (commandName === 'help') {
-        const helpMessage = Object.entries(commands)
-            .map(([name, description]) => `/${name} - ${description}`)
-            .join('\n');
-
-        await interaction.reply({
-            content: `Aqui está a lista de comandos disponíveis:\n${helpMessage}`,
-            ephemeral: true
-        });
-    }
-   
-    else if (commandName === 'status') {
-        const guild = interaction.guild;
-        const serverStatus = `**Nome do servidor:** ${guild.name}
-        **Total de membros:** ${guild.memberCount}
-        **Canais de texto:** ${guild.channels.cache.filter(channel => channel.type === 0).size}
-        **Canais de voz:** ${guild.channels.cache.filter(channel => channel.type === 2).size}
-        **Criado em:** ${guild.createdAt.toDateString()}
-        **Dono do servidor:** <@${guild.ownerId}>`;
-
-        await interaction.reply({
-            content: serverStatus,
-            ephemeral: false // Define como true se quiser que só o usuário veja a resposta
-        });
-    }
-
-   else if (commandName === 'clean') {
-    // Verifica se o autor tem um cargo mínimo necessário (exemplo: "Admin")
-    const requiredRole = 'ZENITE III';  // Substitua pelo nome do cargo que você deseja exigir
-
-
-    //verifica o cargo do invocador
-    if (!interaction.member.roles.cache.some(role => role.name === requiredRole)) {
-        return interaction.reply({ content: 'Você não tem permissão para usar este comando, procure alguém da administração🤖', ephemeral: true });
-    }
-
-    // Pega o canal onde o comando foi invocado
-    const channel = interaction.channel;
-
-    try {
-        // Pega todas as mensagens no canal (limite de 100 mensagens por vez)
-        const messages = await channel.messages.fetch({ limit: 100 });
-        
-        // Exclui as mensagens individualmente (independente da idade)
-        for (const [id, message] of messages) {
-            await message.delete();
-        }
-
-        await interaction.reply({ content: 'Todas as mensagens foram limpas com sucesso!', ephemeral: true });
-
-    } catch (error) {
-        console.error('Erro ao limpar mensagens:', error);
-        await interaction.reply({ content: 'Houve um erro ao tentar limpar as mensagens.', ephemeral: true });
-    }
-}
-
-
-});
-
-
-
-client.on('guildMemberUpdate', async (oldMember, newMember) => {
-    await nicknameManager.updateNickname(newMember);
-});
-
+// Login do bot
 client.login(config.token);

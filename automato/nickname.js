@@ -1,3 +1,5 @@
+
+//nickname.js
 const rolePrefixMap = {
     'ZENITE III': '[ZNT III]',
     'beta_tester': '[TESTER]',
