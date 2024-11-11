@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const config = require('./config.json');
 const clientConfig = require('./clientConfig');
-const commandHandler = require('./slashCommands/event');
+const commandHandler = require('./slashCommands/handleCommand');
 const buttonInteractions = require('./automato/buttonInteractions');
 const messageHandler = require('./automato/messageHandler');
 const guildMemberHandler = require('./automato/guildMemberHandler');
