@@ -6,7 +6,7 @@ const buttonInteractions = require('./automato/buttonInteractions');
 const messageHandler = require('./automato/messageHandler');
 const guildMemberHandler = require('./automato/guildMemberHandler');
 const client = clientConfig.createClient();
-
+const  antLink = require('./automato/antLink')
 // Quando o bot estiver pronto
 client.on('ready', clientConfig.onReady);
 
@@ -18,6 +18,13 @@ client.on('interactionCreate', buttonInteractions.handleButton);
 
 // Mensagens contendo "!bot"
 client.on('messageCreate', messageHandler.handleMessage);
+
+client.on('messageCreate', (message) => 
+{
+    if(message.author.bot) return;
+
+    antLink.blockLinks(message)
+})
 
 // Atualizações no servidor
 client.on('guildMemberUpdate', guildMemberHandler.handleGuildMemberUpdate);
