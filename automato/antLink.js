@@ -10,10 +10,9 @@ async function blockLinks(message) {
     const urlPattern = /(https?:\/\/[^\s]+)/g;
     if (urlPattern.test(message.content)) {
         try {
-            // Apaga a mensagem com o link
+            
             await message.delete();
 
-            // Informa o usuário que links são proibidos neste canal
             await message.channel.send({
                 content: 'Links não são permitidos neste canal.'
             });

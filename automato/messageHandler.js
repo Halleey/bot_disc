@@ -12,8 +12,8 @@ async function handleMessage(message) {
                     .setLabel('Ajuda')
                     .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
-                    .setCustomId('info')
-                    .setLabel('Informações')
+                    .setCustomId('Perfil')
+                    .setLabel('Registrar perfil do braw star')
                     .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
                     .setCustomId('settings')

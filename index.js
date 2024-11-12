@@ -6,7 +6,7 @@ const buttonInteractions = require('./automato/buttonInteractions');
 const messageHandler = require('./automato/messageHandler');
 const guildMemberHandler = require('./automato/guildMemberHandler');
 const antLink = require('./automato/antLink');
-const { showPlayerProfile } = require('./automato/perfil'); // Importa a função de perfil do jogador
+const { showPlayerProfile } = require('./automato/brawStar/perfil'); 
 
 // Criação do cliente
 const client = clientConfig.createClient();
