@@ -1,5 +1,5 @@
 const axios = require('axios');
-const config = require('C:/Users/apare/Desktop/bot discord/config.json');
+const config = require('../../config.json');
 const API_KEY = config.API_KEY;
 async function getPlayerProfile(playerTag) {
     const url = `https://api.brawlstars.com/v1/players/%23${playerTag}`;
