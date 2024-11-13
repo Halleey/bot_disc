@@ -1,3 +1,4 @@
+//guildMemberHandler.js
 const nicknameManager = require('./nickname');
 
 async function handleGuildMemberUpdate(oldMember, newMember) {

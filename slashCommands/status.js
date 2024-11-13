@@ -1,7 +1,11 @@
+// status.js
+const { SlashCommandBuilder } = require('discord.js');
 
-
-async function handleStatus(interaction) {
-    // Código para o comando status...
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('status')
+    .setDescription('Exibe as estatísticas do servidor.'),
+  async execute(interaction) {
     const guild = interaction.guild;
     const serverStatus = `**Nome do servidor:** ${guild.name}
     **Total de membros:** ${guild.memberCount}
@@ -11,6 +15,5 @@ async function handleStatus(interaction) {
     **Dono do servidor:** <@${guild.ownerId}>`;
 
     await interaction.reply({ content: serverStatus, ephemeral: false });
-}
-
-module.exports = { handleStatus };
+  },
+};

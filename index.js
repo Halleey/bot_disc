@@ -1,18 +1,18 @@
 const { Client, GatewayIntentBits } = require('discord.js');
-const config = require('../bot_disc/config.json');
-const clientConfig = require('../bot_disc/clientConfig');
-const commandHandler = require('../bot_disc/slashCommands/handleCommand');
-const buttonInteractions = require('../bot_disc/automato/buttonInteractions');
-const messageHandler = require('../bot_disc/automato/messageHandler');
-const guildMemberHandler = require('../bot_disc/automato/guildMemberHandler');
-const antLink = require('../bot_disc/automato/antLink');
-const { showPlayerProfile } = require('../bot_disc/automato/brawStar/perfil'); 
+const config = require('./config.json');
+const clientConfig = require('./clientConfig');
+const commandHandler = require('./slashCommands/handleCommand');
+const buttonInteractions = require('./automato/buttonInteractions');
+const messageHandler = require('./automato/messageHandler');
+const guildMemberHandler = require('./automato/guildMemberHandler');
+const antLink = require('./automato/antLink');
+const { showPlayerProfile } = require('./automato/brawStar/perfil');
 
 // Criação do cliente
 const client = clientConfig.createClient();
 
 // Quando o bot estiver pronto
-client.on('ready', clientConfig.onReady);
+client.on('ready', () => clientConfig.onReady(client));
 
 // Comandos de interação
 client.on('interactionCreate', commandHandler.handleCommand);
