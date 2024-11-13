@@ -29,6 +29,7 @@ async function showPlayerProfile(playerTag, message) {
         **🔸 Nível de Experiência:** ${playerInfo.expLevel}\n
         **🏆 Troféus:** ${playerInfo.trophies}\n
         **👥 Clube:** ${clubName}\n
+        **🥇 Vitórias 3v3:** ${playerInfo['3vs3Victories']}\n
         **🆔 ID do Clube:** ${clubId}`;
 
         // Envia o perfil no Discord

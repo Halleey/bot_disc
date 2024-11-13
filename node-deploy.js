@@ -6,10 +6,10 @@ const handleStatus = require('../bot_disc/slashCommands/status');
 const handleClean = require('../bot_disc/slashCommands/delete');
 
 const commands = [
-  brawlersCommand.data.toJSON(), // Comando brawlers
-  handleHelp.data.toJSON(),     // Comando help
-  handleStatus.data.toJSON(),   // Comando status
-  handleClean.data.toJSON()     // Comando clean
+  brawlersCommand.data.toJSON(), 
+  handleHelp.data.toJSON(),     
+  handleStatus.data.toJSON(),   
+  handleClean.data.toJSON()     
 ];
 
 const rest = new REST({ version: '10' }).setToken(token);
